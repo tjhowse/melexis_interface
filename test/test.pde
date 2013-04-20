@@ -25,7 +25,7 @@ void setup()
 
 void loop()
 {
-  delay(1); //tSSRERE_mod3
+  delayMicroseconds(2500); //tSSRERE_mod3
   if (test.poll())
     Serial.println("Comms fuckup");
 
