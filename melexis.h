@@ -20,14 +20,18 @@ class MELEXIS
 		uint16_t get_x();
 		uint16_t get_y();
 		uint16_t get_z();
-		uint8_t get_err();
+		uint8_t get_diag();
+		uint16_t get_diag_0();
+		uint16_t get_diag_1();
 		uint8_t get_roll();
 		uint8_t poll();
-				
+		uint8_t diag_poll();
+		uint8_t do_SPI();
+
 		MELEXIS();
 	
 	private:
-		uint8_t do_checksum(uint8_t* message, bool check);
+		bool do_checksum(uint8_t* message);
 
 };
 

@@ -23,20 +23,23 @@ void setup()
   Serial.begin(38400);  
 }
 
-void loop()                     
+void loop()
 {
-  Serial.print("Checksum: ");
-  Serial.println(test.poll(),DEC);  
+  delay(1); //tSSRERE_mod3
+  if (test.poll())
+    Serial.println("Comms fuckup");
+
   Serial.print("X: ");
   Serial.println(test.get_x(),DEC);
   Serial.print("Y: ");
   Serial.println(test.get_y(),DEC);
   Serial.print("Z: ");
   Serial.println(test.get_z(),DEC);
-  Serial.print("Err: ");
-  Serial.println(test.get_err(),DEC);
+  /*Serial.print("Diag0: ");
+  Serial.println(test.get_diag_0(),DEC);
+  Serial.print("Diag1: ");
+  Serial.println(test.get_diag_1(),DEC);*/
   Serial.print("Roll: ");
   Serial.println(test.get_roll(),DEC);
-  delay(10);
 }
 

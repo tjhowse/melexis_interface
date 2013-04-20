@@ -83,6 +83,7 @@ const char cba_256_TAB [] = {0x00, 0x2f, 0x5e, 0x71, 0xbc, 0x93, 0xe2, 0xcd,
 					
 const uint8_t slaveSelectPin = 20;
 uint8_t i,j;
+uint8_t crc;
 					
 uint8_t outbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 uint8_t inbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -92,7 +93,8 @@ uint8_t inbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
  ******************************************************************************/
 MELEXIS::MELEXIS()
 {	
-	pinMode (slaveSelectPin, OUTPUT);	
+	pinMode (slaveSelectPin, OUTPUT);
+	digitalWrite(slaveSelectPin,HIGH); 
 	SPI.begin();
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setClockDivider(SPI_CLOCK_DIV4);
@@ -116,7 +118,7 @@ uint16_t MELEXIS::get_z()
 	return inbuffer[4] | (inbuffer[5]&0x3F)<<8;
 }
 
-uint8_t MELEXIS::get_err()
+uint8_t MELEXIS::get_diag()
 {
 	return (inbuffer[1]&0xC0)>>6;
 }
@@ -126,45 +128,63 @@ uint8_t MELEXIS::get_roll()
 	return (inbuffer[6] & 0x3F);
 }
 
+uint16_t MELEXIS::get_diag_0()
+{
+	return inbuffer[0] | inbuffer[1]<<8;
+}
+
+uint16_t MELEXIS::get_diag_1()
+{
+	return inbuffer[2] | inbuffer[3]<<8;
+}
+
 uint8_t MELEXIS::poll()
 {
 	for (i=0;i<8;i++)
-	{
-		outbuffer[i] = 0;
-	}
-	outbuffer[2] = 0x00;
-	outbuffer[3] = 0x00;
-	outbuffer[6] = 0xC0 | MELIXIS_GET3;
-	do_checksum(outbuffer, 0);
-	outbuffer[0] = 0xC1;
-	outbuffer[1] = 0xFF;
-	outbuffer[2] = 0x16;
-	outbuffer[3] = 0xFF;
-	outbuffer[4] = 0xD4;
-	outbuffer[5] = 0xFF;
-	outbuffer[6] = 0x86;
-	outbuffer[7] = 0x23;
-	return do_checksum(outbuffer, 1);
+		outbuffer[i] = 0x00;
 
-	digitalWrite(slaveSelectPin,LOW);
-	for (i=0; i<8; i++)
-	{
-		inbuffer[i] = SPI.transfer(outbuffer[i]);
-	}
-	digitalWrite(slaveSelectPin,HIGH); 
+	outbuffer[1] = 0x01;
+	outbuffer[2] = 0xFF;
+	outbuffer[3] = 0xFF;
+	outbuffer[6] = 0xC0 | MELIXIS_GET3;
 	
-	return do_checksum(inbuffer, 1);
-	
+	return do_SPI();
 }
 
-uint8_t MELEXIS::do_checksum(uint8_t* message, bool check)
+uint8_t MELEXIS::diag_poll()
 {
-	if (!check) message[7] = 0xFF; 
+	for (i=0;i<8;i++)
+		outbuffer[i] = 0;
+
+	outbuffer[2] = 0xFF;
+	outbuffer[3] = 0xFF;
+	outbuffer[6] = 0xC0 | MELIXIS_DiagnosticDetails;
+	
+	return do_SPI();
+}
+
+
+uint8_t MELEXIS::do_SPI()
+{
+	do_checksum(outbuffer);
+	digitalWrite(slaveSelectPin,LOW);
+	for (i=0; i<8; i++)
+		inbuffer[i] = SPI.transfer(outbuffer[i]);
+	digitalWrite(slaveSelectPin,HIGH); 
+	return do_checksum(inbuffer);
+}
+
+bool MELEXIS::do_checksum(uint8_t* message)
+{
+	// Sets the last byte of the message to the CRC-8 of the first seven bytes.
+	// Also checks existing checksum, returns 0 if OK, 1 if fail.
+	crc = message[7];
+	message[7] = 0xFF; 
 	for (j=0; j<7; j++)
 		message[7] = cba_256_TAB[ message[j] ^ message[7] ];
-		
 	message[7] = ~message[7]; 
-	return message[7];
+	
+	return !(message[7]==crc);
 	
 }
 
