@@ -143,10 +143,9 @@ uint8_t MELEXIS::poll()
 	for (i=0;i<8;i++)
 		outbuffer[i] = 0x00;
 
-	outbuffer[1] = 0x01;
 	outbuffer[2] = 0xFF;
 	outbuffer[3] = 0xFF;
-	outbuffer[6] = 0xC0 | MELIXIS_GET3;
+	outbuffer[6] = 0x80 | MELIXIS_GET3;
 	
 	return do_SPI();
 }
@@ -158,7 +157,7 @@ uint8_t MELEXIS::diag_poll()
 
 	outbuffer[2] = 0xFF;
 	outbuffer[3] = 0xFF;
-	outbuffer[6] = 0xC0 | MELIXIS_DiagnosticDetails;
+	outbuffer[6] = 0x80 | MELIXIS_DiagnosticDetails;
 	
 	return do_SPI();
 }
@@ -168,8 +167,10 @@ uint8_t MELEXIS::do_SPI()
 {
 	do_checksum(outbuffer);
 	digitalWrite(slaveSelectPin,LOW);
+	delayMicroseconds(1);
 	for (i=0; i<8; i++)
 		inbuffer[i] = SPI.transfer(outbuffer[i]);
+	delayMicroseconds(1);
 	digitalWrite(slaveSelectPin,HIGH); 
 	return do_checksum(inbuffer);
 }
