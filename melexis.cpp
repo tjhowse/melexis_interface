@@ -97,8 +97,14 @@
 #define MELEXIS_EE_PINFILTER_O 0
 #define MELEXIS_EE_PINFILTER_L 2
 #define MELEXIS_EE_PINFILTER MELEXIS_EE_PINFILTER_A,MELEXIS_EE_PINFILTER_O,MELEXIS_EE_PINFILTER_L
-
-
+#define MELEXIS_EE_USERID_H_A 0x103A
+#define MELEXIS_EE_USERID_H_O 0
+#define MELEXIS_EE_USERID_H_L 16
+#define MELEXIS_EE_USERID_H MELEXIS_EE_USERID_H_A,MELEXIS_EE_USERID_H_O,MELEXIS_EE_USERID_H_L
+#define MELEXIS_EE_USERID_L_A 0x103C
+#define MELEXIS_EE_USERID_L_O 0
+#define MELEXIS_EE_USERID_L_L 16
+#define MELEXIS_EE_USERID_L MELEXIS_EE_USERID_L_A,MELEXIS_EE_USERID_L_O,MELEXIS_EE_USERID_L_L
 
 
  
@@ -250,17 +256,15 @@ uint8_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint1
 uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
 {
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
-
 	outbuffer[0] = 0x00FF&addr; // Low byte of address to be read
 	outbuffer[1] = (0xFF00&addr)>>8; // High byte
 	outbuffer[6] = 0xC0 | MELEXIS_MemoryRead; // Memory read opcode
 	do_SPI(); // Transmit the message, ignore the response
 	delayMicroseconds(2500);
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
-	outbuffer[6] = 0xC0 | MELEXIS_NOP;
-	do_SPI(); // Recieve response from the memory read
-	//return ((inbuffer[0]|(inbuffer[1]<<8))<<(16-length-offset))>>(16-length); // Spit out the read memory.
-	return ((inbuffer[0]|(inbuffer[1]<<8)));
+	outbuffer[6] = 0xC0 | MELEXIS_NOP; // Send a NOP
+	do_SPI(); // Receive response from the memory read
+	return ((inbuffer[0]|(inbuffer[1]<<8))<<(16-length-offset))>>(16-length); // Spit out the read memory.
 }
 
 
