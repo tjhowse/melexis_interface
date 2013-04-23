@@ -14,32 +14,44 @@
 
    This example code is in the public domain.
 */
+
 #include "D:\devstuff\melexis_interface\melexis.cpp"
 
 MELEXIS test;
+
 
 void setup()
 {                
   Serial.begin(38400);  
 }
 
+
+
 void loop()
 {
   delayMicroseconds(2500); //tSSRERE_mod3
-  if (test.poll())
+/*  if (test.poll())
     Serial.println("Comms fuckup");
-
+    
   Serial.print("X: ");
   Serial.println(test.get_x(),DEC);
   Serial.print("Y: ");
-  Serial.println(test.get_y(),DEC);
-  Serial.print("Z: ");
-  Serial.println(test.get_z(),DEC);
+  Serial.println(test.get_y(),DEC);*/
+  Serial.print("   KT: ");
+  Serial.println(test.get_eeprom(MELEXIS_EE_KT),BIN);
+  Serial.print(" Roll: ");
+  Serial.println(test.get_roll(),HEX);
+  Serial.print("SMISM: ");
+  Serial.println(test.get_eeprom(MELEXIS_EE_SMISM),BIN);
+  Serial.print("VIRTUALGAINMAX: ");
+  Serial.println(test.get_eeprom(MELEXIS_EE_VIRTUALGAINMAX),BIN);
+  Serial.print(" Roll: ");
+  Serial.println(test.get_roll(),HEX);
+
   /*Serial.print("Diag0: ");
   Serial.println(test.get_diag_0(),DEC);
   Serial.print("Diag1: ");
   Serial.println(test.get_diag_1(),DEC);*/
-  Serial.print("Roll: ");
-  Serial.println(test.get_roll(),DEC);
+  
 }
 

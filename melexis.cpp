@@ -20,33 +20,87 @@
  ******************************************************************************/
  
 
-#define MELIXIS_GET1 0x13
-#define MELIXIS_GET2 0x14
-#define MELIXIS_GET3 0x15
-#define MELIXIS_MemoryRead 0x01
-#define MELIXIS_EEPROMWrite 0x03
-#define MELIXIS_EEChallengeAns 0x05
-#define MELIXIS_EEReadChallenge 0x0F
-#define MELIXIS_NOP 0x10
-#define MELIXIS_DiagnosticDetails 0x16
-#define MELIXIS_OscCounterStart 0x18
-#define MELIXIS_OscCounterStop 0x1A
-#define MELIXIS_Reboot 0x2F
-#define MELIXIS_Standby 0x31
+#define MELEXIS_GET1 0x13
+#define MELEXIS_GET2 0x14
+#define MELEXIS_GET3 0x15
+#define MELEXIS_MemoryRead 0x01
+#define MELEXIS_EEPROMWrite 0x03
+#define MELEXIS_EEChallengeAns 0x05
+#define MELEXIS_EEReadChallenge 0x0F
+#define MELEXIS_NOP 0x10
+#define MELEXIS_DiagnosticDetails 0x16
+#define MELEXIS_OscCounterStart 0x18
+#define MELEXIS_OscCounterStop 0x1A
+#define MELEXIS_Reboot 0x2F
+#define MELEXIS_Standby 0x31
 
-#define MELIXIS_Get3Ready 0x2D
-#define MELIXIS_MemoryReadAnswer 0x02
-#define MELIXIS_EEPROMWriteChallenge 0x04
-#define MELIXIS_EEReadAnswer 0x28
-#define MELIXIS_EEPROMWriteStatus 0x0E
-#define MELIXIS_Challenge 0x11
-#define MELIXIS_DiagnosticsAnswer 0x17
-#define MELIXIS_OscCounterStart 0x09
-#define MELIXIS_OscCounterStopAck 0x1B
-#define MELIXIS_StandbyAck 0x32
-#define MELIXIS_Errorframe 0x3D
-#define MELIXIS_NTT 0x3Ea
-#define MELIXIS_ReadyMessage 0x2C
+#define MELEXIS_Get3Ready 0x2D
+#define MELEXIS_MemoryReadAnswer 0x02
+#define MELEXIS_EEPROMWriteChallenge 0x04
+#define MELEXIS_EEReadAnswer 0x28
+#define MELEXIS_EEPROMWriteStatus 0x0E
+#define MELEXIS_Challenge 0x11
+#define MELEXIS_DiagnosticsAnswer 0x17
+#define MELEXIS_OscCounterStart 0x09
+#define MELEXIS_OscCounterStopAck 0x1B
+#define MELEXIS_StandbyAck 0x32
+#define MELEXIS_Errorframe 0x3D
+#define MELEXIS_NTT 0x3E
+#define MELEXIS_ReadyMessage 0x2C
+
+// Each EEPROM setting has an address, a bit offset and a length
+#define MELEXIS_EE_MAPXYZ_A 0x102A
+#define MELEXIS_EE_MAPXYZ_O 0
+#define MELEXIS_EE_MAPXYZ_L 3
+#define MELEXIS_EE_MAPXYZ MELEXIS_EE_MAPXYZ_A,MELEXIS_EE_MAPXYZ_O,MELEXIS_EE_MAPXYZ_L
+#define MELEXIS_EE_3D_A 0x102A
+#define MELEXIS_EE_3D_O 3
+#define MELEXIS_EE_3D_L 1
+#define MELEXIS_EE_3D MELEXIS_EE_3D_A,MELEXIS_EE_3D_O,MELEXIS_EE_3D_L
+#define MELEXIS_EE_FILTER_A 0x102A
+#define MELEXIS_EE_FILTER_O 4
+#define MELEXIS_EE_FILTER_L 2
+#define MELEXIS_EE_FILTER MELEXIS_EE_FILTER_A,MELEXIS_EE_FILTER_O,MELEXIS_EE_FILTER_L
+#define MELEXIS_EE_VIRTUALGAINMAX_A 0x102E
+#define MELEXIS_EE_VIRTUALGAINMAX_O 8
+#define MELEXIS_EE_VIRTUALGAINMAX_L 8
+#define MELEXIS_EE_VIRTUALGAINMAX MELEXIS_EE_VIRTUALGAINMAX_A,MELEXIS_EE_VIRTUALGAINMAX_O,MELEXIS_EE_VIRTUALGAINMAX_L
+#define MELEXIS_EE_VIRTUALGAINMIN_A 0x102E
+#define MELEXIS_EE_VIRTUALGAINMIN_O 0
+#define MELEXIS_EE_VIRTUALGAINMIN_L 8
+#define MELEXIS_EE_VIRTUALGAINMIN MELEXIS_EE_VIRTUALGAINMIN_A,MELEXIS_EE_VIRTUALGAINMIN_O,MELEXIS_EE_VIRTUALGAINMIN_L
+#define MELEXIS_EE_KALPHA_A 0x1022
+#define MELEXIS_EE_KALPHA_O 0
+#define MELEXIS_EE_KALPHA_L 16
+#define MELEXIS_EE_KALPHA MELEXIS_EE_KALPHA_A,MELEXIS_EE_KALPHA_O,MELEXIS_EE_KALPHA_L
+#define MELEXIS_EE_KBETA_A 0x1024
+#define MELEXIS_EE_KBETA_O 0
+#define MELEXIS_EE_KBETA_L 16
+#define MELEXIS_EE_KBETA MELEXIS_EE_KBETA_A,MELEXIS_EE_KBETA_O,MELEXIS_EE_KBETA_L
+#define MELEXIS_EE_SMISM_A 0x1032
+#define MELEXIS_EE_SMISM_O 0
+#define MELEXIS_EE_SMISM_L 16
+#define MELEXIS_EE_SMISM MELEXIS_EE_SMISM_A,MELEXIS_EE_SMISM_O,MELEXIS_EE_SMISM_L
+#define MELEXIS_EE_ORTH_B1B2_A 0x1026
+#define MELEXIS_EE_ORTH_B1B2_O 0
+#define MELEXIS_EE_ORTH_B1B2_L 8
+#define MELEXIS_EE_ORTH_B1B2 MELEXIS_EE_ORTH_B1B2_A,MELEXIS_EE_ORTH_B1B2_O,MELEXIS_EE_ORTH_B1B2_L
+#define MELEXIS_EE_KT_A 0x1030
+#define MELEXIS_EE_KT_O 0
+#define MELEXIS_EE_KT_L 16
+#define MELEXIS_EE_KT MELEXIS_EE_KT_A,MELEXIS_EE_KT_O,MELEXIS_EE_KT_L
+#define MELEXIS_EE_PHYST_A 0x1028
+#define MELEXIS_EE_PHYST_O 8
+#define MELEXIS_EE_PHYST_L 8
+#define MELEXIS_EE_PHYST MELEXIS_EE_PHYST_A,MELEXIS_EE_PHYST_O,MELEXIS_EE_PHYST_L
+#define MELEXIS_EE_PINFILTER_A 0x1001
+#define MELEXIS_EE_PINFILTER_O 0
+#define MELEXIS_EE_PINFILTER_L 2
+#define MELEXIS_EE_PINFILTER MELEXIS_EE_PINFILTER_A,MELEXIS_EE_PINFILTER_O,MELEXIS_EE_PINFILTER_L
+
+
+
+
  
 const char cba_256_TAB [] = {0x00, 0x2f, 0x5e, 0x71, 0xbc, 0x93, 0xe2, 0xcd,
 					0x57, 0x78, 0x09, 0x26, 0xeb, 0xc4, 0xb5, 0x9a,
@@ -140,24 +194,22 @@ uint16_t MELEXIS::get_diag_1()
 
 uint8_t MELEXIS::poll()
 {
-	for (i=0;i<8;i++)
-		outbuffer[i] = 0x00;
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
 
 	outbuffer[2] = 0xFF;
 	outbuffer[3] = 0xFF;
-	outbuffer[6] = 0x80 | MELIXIS_GET3;
+	outbuffer[6] = 0x80 | MELEXIS_GET3;
 	
 	return do_SPI();
 }
 
 uint8_t MELEXIS::diag_poll()
 {
-	for (i=0;i<8;i++)
-		outbuffer[i] = 0;
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
 
 	outbuffer[2] = 0xFF;
 	outbuffer[3] = 0xFF;
-	outbuffer[6] = 0x80 | MELIXIS_DiagnosticDetails;
+	outbuffer[6] = 0x80 | MELEXIS_DiagnosticDetails;
 	
 	return do_SPI();
 }
@@ -174,6 +226,43 @@ uint8_t MELEXIS::do_SPI()
 	digitalWrite(slaveSelectPin,HIGH); 
 	return do_checksum(inbuffer);
 }
+
+uint8_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data)
+{
+	/* This is complicated.
+	
+	-1) Read word to be written into outbuffer
+	0) Modify relevant bit/s.
+	1) EEWrite(Addr, Key), ignore response
+	2) EEReadChallenge, read EEChallenge response
+	3) XOR response with 0x1234
+	4) Respond to challenge with EEChallengeAns, read EEReadAnswer response
+	5) Send NOP, receive EEWriteStatus	
+	*/
+	
+	
+
+	return 0;
+}
+
+
+
+uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
+{
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+
+	outbuffer[0] = 0x00FF&addr; // Low byte of address to be read
+	outbuffer[1] = (0xFF00&addr)>>8; // High byte
+	outbuffer[6] = 0xC0 | MELEXIS_MemoryRead; // Memory read opcode
+	do_SPI(); // Transmit the message, ignore the response
+	delayMicroseconds(2500);
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[6] = 0xC0 | MELEXIS_NOP;
+	do_SPI(); // Recieve response from the memory read
+	//return ((inbuffer[0]|(inbuffer[1]<<8))<<(16-length-offset))>>(16-length); // Spit out the read memory.
+	return ((inbuffer[0]|(inbuffer[1]<<8)));
+}
+
 
 bool MELEXIS::do_checksum(uint8_t* message)
 {
