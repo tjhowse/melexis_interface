@@ -227,6 +227,14 @@ uint8_t MELEXIS::diag_poll()
 	return do_SPI();
 }
 
+uint8_t MELEXIS::reboot()
+{
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[6] = 0xC0 | MELEXIS_Reboot;
+	
+	return do_SPI();
+}
+
 
 uint8_t MELEXIS::do_SPI()
 {
@@ -295,8 +303,11 @@ uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint
 	if ((inbuffer[6]&0x3F) != MELEXIS_EEPROMWriteStatus)
 		return 12; // For some reason the MLX didn't respond properly
 	delayMicroseconds(2500);
+	EE_Value = inbuffer[0]&0x0F;
+	reboot();
+	delayMicroseconds(2500);
 		
-	return inbuffer[0]&0x0F;
+	return EE_Value;
 }
 
 uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
