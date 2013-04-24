@@ -243,26 +243,18 @@ uint8_t MELEXIS::do_SPI()
 
 uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data)
 {
-	/* This is complicated.
-	
-	-1) Read word to be written into outbuffer
-	0) Modify relevant bit/s.
-	1) EEWrite(Addr, Key), ignore response
-	2) EEReadChallenge, read EEChallenge response
-	3) XOR response with 0x1234
-	4) Respond to challenge with EEChallengeAns, read EEReadAnswer response
-	5) Send NOP, receive EEWriteStatus	
-	*/	
-	//-1:
+	// Call this function using the defines above. E.G. set_eeprom(MELEXIS_EE_3D,1)
+
+	//-1: Read word to be written into outbuffer
 	EE_Value = get_eeprom_word(addr, offset, length); // Get the current value of that 16-bit word.
-	// 0:
+	// 0: Modify relevant bit/s.
 	// Check that data can fit into length bits.
 	if (data&(0xFFFF<<length))
-		return 9; // Error codes 1-8 are define in the datasheet.
+		return 9; // Error codes 1-8 are defined in the datasheet.
 	EE_Value &= ((0xFFFF<<(offset+length)|(0xFFFF>>(16-offset))));
 	EE_Value |= (data<<offset);
 	
-	// 1:
+	// 1: EEWrite(Addr, Key), ignore response
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[1] = 0x003F&addr; // Low six bits of the address to be read
 	outbuffer[2] = (get_EE_Key(addr)&0x00FF); // Write in the key appropriate to that EEPROM address.
@@ -273,13 +265,13 @@ uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint
 	do_SPI(); // Transmit the message, ignore the response
 	delayMicroseconds(2500);
 	
-	// 2:
+	// 2: EEReadChallenge, read EEChallenge response
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[6] = 0xC0 | MELEXIS_EEReadChallenge;
 	do_SPI(); // Transmit the message
 	delayMicroseconds(2500);
 	
-	// 3,4:
+	// 3,4: XOR response with 0x1234,  Respond to challenge with EEChallengeAns, read EEReadAnswer response
 	if ((inbuffer[6]&0x3F) != MELEXIS_EEPROMWriteChallenge)
 		return 10; // For some reason the MLX didn't respond properly to our read request.
 	EE_Value = (inbuffer[2]|(inbuffer[3]<<8));
@@ -296,7 +288,7 @@ uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint
 	
 	if ((inbuffer[6]&0x3F) != MELEXIS_EEReadAnswer)
 		return 11; // For some reason the MLX didn't respond properly
-	// 5:
+	// 5: Send NOP, receive EEWriteStatus	
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[6] = 0xC0 | MELEXIS_NOP;
 	do_SPI();
