@@ -37,35 +37,18 @@ void loop()
   Serial.println(test.get_x(),DEC);
   Serial.print("Y: ");
   Serial.println(test.get_y(),DEC);*/
-  Serial.print("MELEXIS_EE_MAPXYZ: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_MAPXYZ),BIN);
-  Serial.print("MELEXIS_EE_3D: ");
+  Serial.print(" orig: ");
   Serial.println(test.get_eeprom(MELEXIS_EE_3D),BIN);
-  Serial.print("MELEXIS_EE_FILTER: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_FILTER),BIN);
-  Serial.print("MELEXIS_EE_VIRTUALGAINMAX: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_VIRTUALGAINMAX),BIN);
-  Serial.print("MELEXIS_EE_VIRTUALGAINMIN: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_VIRTUALGAINMIN),BIN);
-  Serial.print("MELEXIS_EE_KALPHA: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_KALPHA),BIN);
-  Serial.print("MELEXIS_EE_KBETA: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_KBETA),BIN);
-  Serial.print("MELEXIS_EE_SMISM: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_SMISM),BIN);
-  Serial.print("MELEXIS_EE_ORTH_B1B2: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_ORTH_B1B2),BIN);
-  Serial.print("MELEXIS_EE_KT: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_KT),BIN);
-  Serial.print("MELEXIS_EE_PHYST: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_PHYST),BIN);
-  Serial.print("MELEXIS_EE_PINFILTER: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_PINFILTER),BIN);
-  Serial.print("MELEXIS_EE_USERID_H: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_USERID_H),BIN);
-  Serial.print("MELEXIS_EE_USERID_L: ");
-  Serial.println(test.get_eeprom(MELEXIS_EE_USERID_L),BIN);
+  Serial.print("write: ");
+  Serial.println(test.set_eeprom(MELEXIS_EE_3D,1),HEX);
+  Serial.print("  new: ");
+  Serial.println(test.get_eeprom(MELEXIS_EE_3D),BIN);
 
+  while (1)
+  {
+    Serial.print("  done ");
+    delay(1000);
+  }
   /*Serial.print("Diag0: ");
   Serial.println(test.get_diag_0(),DEC);
   Serial.print("Diag1: ");

@@ -141,12 +141,19 @@ const char cba_256_TAB [] = {0x00, 0x2f, 0x5e, 0x71, 0xbc, 0x93, 0xe2, 0xcd,
 					0xd8, 0xf7, 0x86, 0xa9, 0x64, 0x4b, 0x3a, 0x15,
 					0x8f, 0xa0, 0xd1, 0xfe, 0x33, 0x1c, 0x6d, 0x42};
 					
+const uint16_t EE_Keys [][8] =	{{17485, 31053, 57190, 57724, 7899, 53543, 26763, 12528},
+							{38105, 51302, 16209, 24847, 13134, 52339, 14530, 18350},
+							{55636, 64477, 40905, 45498, 24411, 36677, 4213, 48843},
+							{6368, 5907, 31384, 63325, 3562, 19816, 6995, 3147}};
+
 const uint8_t slaveSelectPin = 20;
-uint8_t i,j;
+uint8_t i,j,k;
 uint8_t crc;
 					
 uint8_t outbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 uint8_t inbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+uint16_t EE_Value;
 
 /******************************************************************************
  * Constructors
@@ -223,6 +230,7 @@ uint8_t MELEXIS::diag_poll()
 
 uint8_t MELEXIS::do_SPI()
 {
+	// This function appends the checksum, clocks out the outbuffer and clocks in the inbuffer
 	do_checksum(outbuffer);
 	digitalWrite(slaveSelectPin,LOW);
 	delayMicroseconds(1);
@@ -233,7 +241,7 @@ uint8_t MELEXIS::do_SPI()
 	return do_checksum(inbuffer);
 }
 
-uint8_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data)
+uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data)
 {
 	/* This is complicated.
 	
@@ -244,16 +252,72 @@ uint8_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint1
 	3) XOR response with 0x1234
 	4) Respond to challenge with EEChallengeAns, read EEReadAnswer response
 	5) Send NOP, receive EEWriteStatus	
-	*/
+	*/	
+	//-1:
+	EE_Value = get_eeprom_word(addr, offset, length); // Get the current value of that 16-bit word.
+	// 0:
+	// Check that data can fit into length bits.
+	if (data&(0xFFFF<<length))
+		return 9; // Error codes 1-8 are define in the datasheet.
+	EE_Value &= ((0xFFFF<<(offset+length)|(0xFFFF>>(16-offset))));
+	EE_Value |= (data<<offset);
 	
+	// 1:
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[1] = 0x003F&addr; // Low six bits of the address to be read
+	outbuffer[2] = (get_EE_Key(addr)&0x00FF); // Write in the key appropriate to that EEPROM address.
+	outbuffer[3] = (get_EE_Key(addr)&0xFF00)>>8;
+	outbuffer[4] = (EE_Value&0x00FF);
+	outbuffer[5] = (EE_Value&0xFF00)>>8;
+	outbuffer[6] = 0xC0 | MELEXIS_EEPROMWrite;
+	do_SPI(); // Transmit the message, ignore the response
+	delayMicroseconds(2500);
 	
-
-	return 0;
+	// 2:
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[6] = 0xC0 | MELEXIS_EEReadChallenge;
+	do_SPI(); // Transmit the message
+	delayMicroseconds(2500);
+	
+	// 3,4:
+	if ((inbuffer[6]&0x3F) != MELEXIS_EEPROMWriteChallenge)
+		return 10; // For some reason the MLX didn't respond properly to our read request.
+	EE_Value = (inbuffer[2]|(inbuffer[3]<<8));
+	
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	/*outbuffer[2] = (0x00FF&(EE_Value^0x1234));
+	outbuffer[3] = (0xFF00&(EE_Value^0x1234))>>8;
+	outbuffer[4] = (0x00FF&(~EE_Value));
+	outbuffer[5] = (0xFF00&(~EE_Value))>>8;*/
+	EE_Value ^= 0x1234;
+	outbuffer[2] = (0x00FF&EE_Value);
+	outbuffer[3] = (0xFF00&EE_Value)>>8;
+	outbuffer[4] = (0x00FF&(~EE_Value));
+	outbuffer[5] = (0xFF00&(~EE_Value))>>8;
+	outbuffer[6] = 0xC0 | MELEXIS_EEChallengeAns;
+	do_SPI(); // Transmit the message
+	delay(40); // Wait tEEWrite
+	
+	if ((inbuffer[6]&0x3F) != MELEXIS_EEReadAnswer)
+		return 11; // For some reason the MLX didn't respond properly to our read request.
+	// 5:
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[6] = 0xC0 | MELEXIS_NOP;
+	do_SPI();
+	if ((inbuffer[6]&0x3F) != MELEXIS_EEPROMWriteStatus)
+		return 12; // For some reason the MLX didn't respond properly to our read request.
+	delayMicroseconds(2500);
+		
+	return inbuffer[0]&0x0F;
 }
 
-
-
 uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
+{
+	EE_Value = get_eeprom_word(addr, offset, length);
+	return (EE_Value<<(16-length-offset))>>(16-length); // Spit out the read memory.
+}
+
+uint16_t MELEXIS::get_eeprom_word(uint16_t addr, uint8_t offset, uint8_t length)
 {
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[0] = 0x00FF&addr; // Low byte of address to be read
@@ -264,9 +328,15 @@ uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[6] = 0xC0 | MELEXIS_NOP; // Send a NOP
 	do_SPI(); // Receive response from the memory read
-	return ((inbuffer[0]|(inbuffer[1]<<8))<<(16-length-offset))>>(16-length); // Spit out the read memory.
+	delayMicroseconds(2500);
+	//return ((inbuffer[0]|(inbuffer[1]<<8))<<(16-length-offset))>>(16-length); // Spit out the read memory.
+	return (inbuffer[0]|(inbuffer[1]<<8)); // Spit out the read memory.
 }
-
+uint16_t MELEXIS::get_EE_Key(uint16_t addr)
+{
+	// This does a lookup in the EE_Keys table and grabs the write key for a given EEPROM memory address.
+	return EE_Keys[(addr&0x30)>>4][(addr&0x0E)>>1];
+}
 
 bool MELEXIS::do_checksum(uint8_t* message)
 {
