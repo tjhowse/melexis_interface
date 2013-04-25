@@ -27,6 +27,7 @@ class MELEXIS
 		uint8_t poll();
 		uint8_t diag_poll();
 		uint8_t do_SPI();
+		uint8_t reboot();
 		
 		uint16_t set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data);
 		uint16_t get_eeprom(uint16_t addr, uint8_t offset, uint8_t length);

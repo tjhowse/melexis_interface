@@ -30,17 +30,17 @@ void setup()
 void loop()
 {
   delayMicroseconds(2500); //tSSRERE_mod3
-/*  if (test.poll())
+  if (test.poll())
     Serial.println("Comms fuckup");
     
   Serial.print("X: ");
   Serial.println(test.get_x(),DEC);
   Serial.print("Y: ");
-  Serial.println(test.get_y(),DEC);*/
-  Serial.print(" orig: ");
+  Serial.println(test.get_y(),DEC);
+  /*Serial.print(" orig: ");
   Serial.println(test.get_eeprom(MELEXIS_EE_3D),BIN);
   Serial.print("write: ");
-  Serial.println(test.set_eeprom(MELEXIS_EE_3D,1),HEX);
+  Serial.println(test.set_eeprom(MELEXIS_EE_3D,1),DEC);
   Serial.print("  new: ");
   Serial.println(test.get_eeprom(MELEXIS_EE_3D),BIN);
 
@@ -48,7 +48,7 @@ void loop()
   {
     Serial.print("  done ");
     delay(1000);
-  }
+  }*/
   /*Serial.print("Diag0: ");
   Serial.println(test.get_diag_0(),DEC);
   Serial.print("Diag1: ");
