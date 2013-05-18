@@ -17,9 +17,9 @@
 class MELEXIS
 {
 	public:
-		uint16_t get_x();
-		uint16_t get_y();
-		uint16_t get_z();
+		int16_t get_x();
+		int16_t get_y();
+		int16_t get_z();
 		uint8_t get_diag();
 		uint16_t get_diag_0();
 		uint16_t get_diag_1();
@@ -28,6 +28,7 @@ class MELEXIS
 		uint8_t diag_poll();
 		uint8_t do_SPI();
 		uint8_t reboot();
+		void send_NOP();
 		
 		uint16_t set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint16_t data);
 		uint16_t get_eeprom(uint16_t addr, uint8_t offset, uint8_t length);

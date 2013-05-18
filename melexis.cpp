@@ -154,6 +154,7 @@ uint8_t outbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 uint8_t inbuffer[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 uint16_t EE_Value;
+int16_t axis_Value;
 
 /******************************************************************************
  * Constructors
@@ -171,18 +172,27 @@ MELEXIS::MELEXIS()
  * User API
  ******************************************************************************/
 
-uint16_t MELEXIS::get_x()
+int16_t MELEXIS::get_x()
 {
-	return inbuffer[0] | ((inbuffer[1]&0x3F)<<8);
+	axis_Value = (uint16_t)(inbuffer[0] | ((inbuffer[1]&0x3F)<<8));
+	if (axis_Value >= 8192)
+		axis_Value -= 16384;
+	return axis_Value;
 }
-uint16_t MELEXIS::get_y()
+int16_t MELEXIS::get_y()
 {
-	return inbuffer[2] | (inbuffer[3]&0x3F)<<8;
+	axis_Value = inbuffer[2] | (inbuffer[3]&0x3F)<<8;
+	if (axis_Value >= 8192)
+		axis_Value -= 16384;
+	return axis_Value;
 }
 
-uint16_t MELEXIS::get_z()
+int16_t MELEXIS::get_z()
 {
-	return inbuffer[4] | (inbuffer[5]&0x3F)<<8;
+	axis_Value = inbuffer[4] | (inbuffer[5]&0x3F)<<8;
+	if (axis_Value >= 8192)
+		axis_Value -= 16384;
+	return axis_Value;
 }
 
 uint8_t MELEXIS::get_diag()
@@ -297,16 +307,14 @@ uint16_t MELEXIS::set_eeprom(uint16_t addr, uint8_t offset, uint8_t length, uint
 	if ((inbuffer[6]&0x3F) != MELEXIS_EEReadAnswer)
 		return 11; // For some reason the MLX didn't respond properly
 	// 5: Send NOP, receive EEWriteStatus	
-	memset(&outbuffer,0,sizeof(uint8_t)*8);
-	outbuffer[6] = 0xC0 | MELEXIS_NOP;
-	do_SPI();
+	send_NOP();
 	if ((inbuffer[6]&0x3F) != MELEXIS_EEPROMWriteStatus)
 		return 12; // For some reason the MLX didn't respond properly
 	delayMicroseconds(2500);
 	EE_Value = inbuffer[0]&0x0F;
 	reboot();
 	delayMicroseconds(2500);
-		
+	send_NOP();		
 	return EE_Value;
 }
 
@@ -318,17 +326,25 @@ uint16_t MELEXIS::get_eeprom(uint16_t addr, uint8_t offset, uint8_t length)
 
 uint16_t MELEXIS::get_eeprom_word(uint16_t addr, uint8_t offset, uint8_t length)
 {
+	delayMicroseconds(2500);
+	send_NOP();
+	delayMicroseconds(2500);
 	memset(&outbuffer,0,sizeof(uint8_t)*8);
 	outbuffer[0] = 0x00FF&addr; // Low byte of address to be read
 	outbuffer[1] = (0xFF00&addr)>>8; // High byte
 	outbuffer[6] = 0xC0 | MELEXIS_MemoryRead; // Memory read opcode
 	do_SPI(); // Transmit the message, ignore the response
 	delayMicroseconds(2500);
-	memset(&outbuffer,0,sizeof(uint8_t)*8);
-	outbuffer[6] = 0xC0 | MELEXIS_NOP; // Send a NOP
-	do_SPI(); // Receive response from the memory read
+	send_NOP();
 	delayMicroseconds(2500);
 	return (inbuffer[0]|(inbuffer[1]<<8)); // Spit out the read memory.
+}
+
+void MELEXIS::send_NOP()
+{
+	memset(&outbuffer,0,sizeof(uint8_t)*8);
+	outbuffer[6] = 0xC0 | MELEXIS_NOP; // Send a NOP
+	do_SPI();
 }
 
 uint16_t MELEXIS::get_EE_Key(uint16_t addr)
