@@ -159,8 +159,9 @@ int16_t axis_Value;
 /******************************************************************************
  * Constructors
  ******************************************************************************/
-MELEXIS::MELEXIS()
+MELEXIS::MELEXIS(uint8_t selectPin)
 {	
+	slaveSelectPin = selectPin;
 	pinMode (slaveSelectPin, OUTPUT);
 	digitalWrite(slaveSelectPin,HIGH); 
 	SPI.begin();
