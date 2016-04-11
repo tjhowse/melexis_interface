@@ -17,7 +17,7 @@
 
 #include "D:\devstuff\melexis_interface\melexis.cpp"
 
-MELEXIS test;
+MELEXIS test(15);
 
 
 void setup()
