@@ -1,5 +1,4 @@
 #include <SPI.h>
-
 #include "melexis.h"
 
 MELEXIS test(15);
@@ -13,12 +12,13 @@ void loop()
 {
   delayMicroseconds(2500); //tSSRERE_mod3
   if (test.poll())
-    Serial.println("Comms fuckup");
+    Serial.println("No Response");
     
   Serial.print("X: ");
   Serial.println(test.get_x(),DEC);
-  Serial.print("Y: ");
+  Serial.print(" Y: ");
   Serial.println(test.get_y(),DEC);
+
   /*Serial.print(" orig: ");
   Serial.println(test.get_eeprom(MELEXIS_EE_3D),BIN);
   Serial.print("write: ");
