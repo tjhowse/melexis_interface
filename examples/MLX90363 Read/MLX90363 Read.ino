@@ -15,7 +15,7 @@
    This example code is in the public domain.
 */
 
-#include "D:\devstuff\melexis_interface\melexis.cpp"
+#include "melexis.cpp"
 
 MELEXIS test(15);
 
